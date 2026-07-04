@@ -23,6 +23,7 @@
     --paused: #64748b;
     --paused-soft: #e9edf2;
     --paused-ink: #4a5568;
+    --scrim: rgba(22, 35, 46, 0.45);
     --mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace;
     --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
   }
@@ -50,6 +51,7 @@
       --paused: #7d8b99;
       --paused-soft: #222e39;
       --paused-ink: #a3b2c0;
+      --scrim: rgba(3, 8, 12, 0.6);
     }
   }
   :root[data-theme="dark"] {
@@ -61,6 +63,7 @@
     --live: #3987e5; --live-soft: #182f4d; --live-ink: #82b6f0;
     --pending: #fab219; --pending-soft: #3a2f10; --pending-ink: #f0c96a;
     --paused: #7d8b99; --paused-soft: #222e39; --paused-ink: #a3b2c0;
+    --scrim: rgba(3, 8, 12, 0.6);
   }
   :root[data-theme="light"] {
     --page: #eef3f7; --surface: #ffffff; --surface-2: #f4f8fb;
@@ -71,6 +74,7 @@
     --live: #2a78d6; --live-soft: #e3edfa; --live-ink: #1c5cab;
     --pending: #fab219; --pending-soft: #fdf3d9; --pending-ink: #8a5f00;
     --paused: #64748b; --paused-soft: #e9edf2; --paused-ink: #4a5568;
+    --scrim: rgba(22, 35, 46, 0.45);
   }
 
   body {
@@ -119,12 +123,21 @@
   section > .panel, .card { background: var(--surface); border: 1px solid var(--hairline); border-radius: 10px; }
 
   .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
-  .card { padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; }
+  .card {
+    padding: 16px 18px; display: flex; flex-direction: column; gap: 8px;
+    cursor: pointer; text-align: left; font: inherit; color: inherit;
+    transition: border-color .12s ease, transform .12s ease;
+  }
+  .card:hover { border-color: var(--accent); }
+  .card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (prefers-reduced-motion: no-preference) {
+    .card:hover { transform: translateY(-1px); }
+  }
   .card .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
   .card h3 { font-size: 15px; font-weight: 650; margin: 0; }
   .card .detail { font-size: 13px; color: var(--ink-2); margin: 0; }
   .card .meta { font-size: 12px; color: var(--muted); font-family: var(--mono); }
-  .card .links { font-size: 12.5px; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+  .card .open-hint { font-size: 12px; color: var(--accent); }
   .srcs { display: flex; flex-wrap: wrap; gap: 6px; }
   .src { font-size: 11px; color: var(--ink-2); background: var(--surface-2); border: 1px solid var(--hairline); border-radius: 4px; padding: 1px 7px; }
 
@@ -156,7 +169,7 @@
   .tl-track { position: relative; height: 14px; }
   .tl-bar {
     position: absolute; top: 2px; height: 10px; border-radius: 4px;
-    min-width: 10px; cursor: default;
+    min-width: 10px; cursor: pointer; border: 0; padding: 0;
   }
   .tl-bar:hover, .tl-bar:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
   .tl-bar .tip {
@@ -181,6 +194,56 @@
 
   footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--hairline); padding-top: 14px; }
   footer p { margin: 4px 0; }
+
+  /* ---------- project detail modal ---------- */
+  .overlay {
+    position: fixed; inset: 0; z-index: 10;
+    background: var(--scrim);
+    display: none; align-items: flex-start; justify-content: center;
+    padding: 8vh 16px 16px;
+  }
+  .overlay.on { display: flex; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--hairline); border-radius: 12px;
+    width: 100%; max-width: 560px; max-height: 80vh; overflow-y: auto;
+    box-shadow: 0 18px 50px rgba(10, 20, 30, .25);
+  }
+  .modal-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 18px 20px 0;
+  }
+  .modal-head h3 { font-size: 19px; font-weight: 700; letter-spacing: -0.01em; margin: 0; }
+  .modal-close {
+    flex: none; border: 1px solid var(--hairline); background: var(--surface-2); color: var(--ink-2);
+    width: 30px; height: 30px; border-radius: 8px; font-size: 15px; line-height: 1; cursor: pointer;
+  }
+  .modal-close:hover { border-color: var(--accent); color: var(--ink); }
+  .modal-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .modal-body { padding: 8px 20px 20px; display: flex; flex-direction: column; gap: 16px; }
+  .modal-body .summary { font-size: 13.5px; color: var(--ink-2); margin: 0; }
+  .modal-sub { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin: 0 0 6px; }
+  .res-list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--hairline); border-radius: 8px; overflow: hidden; }
+  .res-list li {
+    display: grid; grid-template-columns: 82px 1fr auto; gap: 10px; align-items: baseline;
+    padding: 9px 12px; border-top: 1px solid var(--hairline); font-size: 13px; background: var(--surface);
+  }
+  .res-list li:nth-child(odd) { background: var(--surface-2); }
+  .res-list li:first-child { border-top: 0; }
+  .res-list .svc-name { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .res-list .res-k { min-width: 0; }
+  .res-list .res-k .sub { display: block; font-size: 11.5px; color: var(--muted); font-family: var(--mono); }
+  .res-list .res-state { font-size: 11.5px; font-family: var(--mono); color: var(--ink-2); white-space: nowrap; }
+  .res-list .res-state.ok { color: var(--good-ink); }
+  .res-list .res-state.warn { color: var(--pending-ink); }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .action {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12.5px; font-weight: 600; color: var(--accent);
+    background: var(--accent-soft); border: 1px solid transparent; border-radius: 8px;
+    padding: 6px 12px;
+  }
+  .action:hover { text-decoration: none; border-color: var(--accent); }
+  .modal-meta { font-size: 12px; color: var(--muted); font-family: var(--mono); }
 </style>
 
 <div class="wrap">
@@ -230,66 +293,67 @@
   <section>
     <h2>Current</h2>
     <div class="cards">
-      <div class="card">
-        <div class="top"><h3>style-list</h3><span class="pill active">Active</span></div>
+      <button class="card" data-project="style-list">
+        <span class="top"><h3>style-list</h3><span class="pill active">Active</span></span>
         <p class="detail">Newest build — Supabase database is up and healthy (eu-west-1). No site deployed yet.</p>
-        <div class="srcs"><span class="src">Supabase</span></div>
+        <span class="srcs"><span class="src">Supabase</span></span>
         <span class="meta">started 2026-07-01</span>
-      </div>
-      <div class="card">
-        <div class="top"><h3>ICeman</h3><span class="pill pending">Pending</span></div>
+        <span class="open-hint">View details →</span>
+      </button>
+      <button class="card" data-project="iceman">
+        <span class="top"><h3>ICeman</h3><span class="pill pending">Pending</span></span>
         <p class="detail">GitHub repo created but still empty — no commits, issues, or pull requests yet. This dashboard is its first artifact.</p>
-        <div class="srcs"><span class="src">GitHub</span></div>
+        <span class="srcs"><span class="src">GitHub</span></span>
         <span class="meta">repo: thescalingcompony-ui/iceman</span>
-      </div>
+        <span class="open-hint">View details →</span>
+      </button>
     </div>
   </section>
 
   <section>
     <h2>Shipped &amp; live</h2>
     <div class="cards">
-      <div class="card">
-        <div class="top"><h3>Grub &amp; Vine Events</h3><span class="pill live">Live</span></div>
+      <button class="card" data-project="grub-vine">
+        <span class="top"><h3>Grub &amp; Vine Events</h3><span class="pill live">Live</span></span>
         <p class="detail">Site is live and the deploy is current. The companion Supabase database (“grub and vineai”) is paused; two 13-page Vine AI pitch decks live in Canva.</p>
-        <div class="srcs"><span class="src">Netlify</span><span class="src">Supabase</span><span class="src">Canva</span></div>
-        <div class="links">
-          <a href="http://grub-vine-events.netlify.app">grub-vine-events.netlify.app</a>
-          <a href="https://www.canva.com/d/7K05zuZQ_lgV4nQ">Vine AI deck</a>
-        </div>
+        <span class="srcs"><span class="src">Netlify</span><span class="src">Supabase</span><span class="src">Canva</span></span>
         <span class="meta">db created 2026-05-07 · decks 2026-04-15</span>
-      </div>
-      <div class="card">
-        <div class="top"><h3>Winter Wednesdays — Blue Room</h3><span class="pill live">Live</span></div>
+        <span class="open-hint">View details →</span>
+      </button>
+      <button class="card" data-project="winter-wednesdays">
+        <span class="top"><h3>Winter Wednesdays — Blue Room</h3><span class="pill live">Live</span></span>
         <p class="detail">Site is live with a current deploy. Netlify-only project; no database attached.</p>
-        <div class="srcs"><span class="src">Netlify</span></div>
-        <div class="links"><a href="http://winter-wednesdays-blueroom.netlify.app">winter-wednesdays-blueroom.netlify.app</a></div>
+        <span class="srcs"><span class="src">Netlify</span></span>
         <span class="meta">start date not exposed by Netlify</span>
-      </div>
+        <span class="open-hint">View details →</span>
+      </button>
     </div>
   </section>
 
   <section>
     <h2>Past &amp; paused</h2>
     <div class="cards">
-      <div class="card">
-        <div class="top"><h3>ScaleDesk</h3><span class="pill paused">Paused</span></div>
+      <button class="card" data-project="scaledesk">
+        <span class="top"><h3>ScaleDesk</h3><span class="pill paused">Paused</span></span>
         <p class="detail">Earliest project on record. Supabase database (eu-west-1) is inactive — restore it from the Supabase dashboard to resume.</p>
-        <div class="srcs"><span class="src">Supabase</span></div>
+        <span class="srcs"><span class="src">Supabase</span></span>
         <span class="meta">started 2026-04-07</span>
-      </div>
-      <div class="card">
-        <div class="top"><h3>Coach Q — Nico</h3><span class="pill paused">Paused</span></div>
+        <span class="open-hint">View details →</span>
+      </button>
+      <button class="card" data-project="coach-q">
+        <span class="top"><h3>Coach Q — Nico</h3><span class="pill paused">Paused</span></span>
         <p class="detail">Supabase database (ap-southeast-1) is inactive. No site or design assets linked.</p>
-        <div class="srcs"><span class="src">Supabase</span></div>
+        <span class="srcs"><span class="src">Supabase</span></span>
         <span class="meta">started 2026-04-29</span>
-      </div>
-      <div class="card">
-        <div class="top"><h3>TSC brand &amp; social</h3><span class="pill paused">Dormant</span></div>
+        <span class="open-hint">View details →</span>
+      </button>
+      <button class="card" data-project="tsc-brand">
+        <span class="top"><h3>TSC brand &amp; social</h3><span class="pill paused">Dormant</span></span>
         <p class="detail">Marketing sprint in Canva: “Your Story” plus two automation-themed Facebook posts. Last touched late April.</p>
-        <div class="srcs"><span class="src">Canva</span></div>
-        <div class="links"><a href="https://www.canva.com/d/7_GwRkF9yQv8-Zg">Your Story</a><a href="https://www.canva.com/d/51oyjtSRA00v36C">FB: Save Time</a><a href="https://www.canva.com/d/mnX9Lc4gMyG8tTF">FB: Manually?</a></div>
+        <span class="srcs"><span class="src">Canva</span></span>
         <span class="meta">last edit 2026-04-23</span>
-      </div>
+        <span class="open-hint">View details →</span>
+      </button>
     </div>
   </section>
 
@@ -313,27 +377,27 @@
         <div class="tl-rows">
           <div class="tl-row">
             <span class="name">ScaleDesk</span>
-            <div class="tl-track"><span class="tl-bar" tabindex="0" style="left:6%;width:88%;background:var(--paused)"><span class="tip">ScaleDesk · Apr 7 → now · paused</span></span></div>
+            <div class="tl-track"><button class="tl-bar" data-project="scaledesk" style="left:6%;width:88%;background:var(--paused)"><span class="tip">ScaleDesk · Apr 7 → now · paused</span></button></div>
           </div>
           <div class="tl-row">
             <span class="name">Coach Q — Nico</span>
-            <div class="tl-track"><span class="tl-bar" tabindex="0" style="left:28%;width:66%;background:var(--paused)"><span class="tip">Coach Q · Apr 29 → now · paused</span></span></div>
+            <div class="tl-track"><button class="tl-bar" data-project="coach-q" style="left:28%;width:66%;background:var(--paused)"><span class="tip">Coach Q · Apr 29 → now · paused</span></button></div>
           </div>
           <div class="tl-row">
             <span class="name">Grub &amp; Vine</span>
-            <div class="tl-track"><span class="tl-bar" tabindex="0" style="left:36%;width:58%;background:var(--live)"><span class="tip">Grub &amp; Vine · May 7 → now · live</span></span></div>
+            <div class="tl-track"><button class="tl-bar" data-project="grub-vine" style="left:36%;width:58%;background:var(--live)"><span class="tip">Grub &amp; Vine · May 7 → now · live</span></button></div>
           </div>
           <div class="tl-row">
             <span class="name">style-list</span>
-            <div class="tl-track"><span class="tl-bar" tabindex="0" style="left:91%;width:3%;background:var(--good)"><span class="tip">style-list · Jul 1 → now · active</span></span></div>
+            <div class="tl-track"><button class="tl-bar" data-project="style-list" style="left:91%;width:3%;background:var(--good)"><span class="tip">style-list · Jul 1 → now · active</span></button></div>
           </div>
           <div class="tl-row">
             <span class="name">ICeman</span>
-            <div class="tl-track"><span class="tl-bar" tabindex="0" style="left:92%;width:2%;background:var(--pending)"><span class="tip">ICeman · Jul 2 → now · pending</span></span></div>
+            <div class="tl-track"><button class="tl-bar" data-project="iceman" style="left:92%;width:2%;background:var(--pending)"><span class="tip">ICeman · Jul 2 → now · pending</span></button></div>
           </div>
         </div>
       </div>
-      <p class="tl-note">Bars run from each project’s first recorded activity to today; color is its current status. Winter Wednesdays is omitted — Netlify doesn’t expose its start date.</p>
+      <p class="tl-note">Bars run from each project’s first recorded activity to today; color is its current status. Click a bar or card for details. Winter Wednesdays is omitted — Netlify doesn’t expose its start date.</p>
     </div>
   </section>
 
@@ -387,3 +451,160 @@
     <p>Sources: GitHub · Supabase · Netlify · Canva · Google Calendar. Refreshed automatically every day at 07:00 UTC; ask Claude to change the cadence or add Gmail / Drive.</p>
   </footer>
 </div>
+
+<div class="overlay" id="overlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-head">
+      <h3 id="modal-title"></h3>
+      <button class="modal-close" id="modal-close" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+  const PROJECTS = {
+    "style-list": {
+      name: "style-list",
+      status: ["active", "Active"],
+      summary: "The newest project on the books, started July 1. The Supabase database is provisioned and healthy; nothing is deployed or in design yet, so the next step is likely a repo and a site.",
+      resources: [
+        { svc: "Supabase", name: "style-list", sub: "Postgres 17 · eu-west-1", state: "ACTIVE_HEALTHY", ok: true }
+      ],
+      actions: [
+        { label: "Open in Supabase", url: "https://supabase.com/dashboard/project/bjlkcqtrdebgajjxkhiz" }
+      ],
+      meta: "created 2026-07-01"
+    },
+    "iceman": {
+      name: "ICeman",
+      status: ["pending", "Pending"],
+      summary: "GitHub repo exists but has no commits, issues, or pull requests on the default branch yet. This dashboard, pushed to a working branch, is its first content.",
+      resources: [
+        { svc: "GitHub", name: "thescalingcompony-ui/iceman", sub: "default branch empty", state: "0 commits · 0 PRs", ok: false },
+        { svc: "GitHub", name: "claude/live-dashboard-connected-services-d9ffqd", sub: "working branch", state: "dashboard.html", ok: true }
+      ],
+      actions: [
+        { label: "Open repo on GitHub", url: "https://github.com/thescalingcompony-ui/iceman" }
+      ],
+      meta: "repo active since 2026-07-02"
+    },
+    "grub-vine": {
+      name: "Grub & Vine Events",
+      status: ["live", "Live"],
+      summary: "The most built-out project: a live events site on Netlify, a companion Supabase database (currently paused to save resources), and two 13-page Vine AI pitch decks in Canva.",
+      resources: [
+        { svc: "Netlify", name: "grub-vine-events", sub: "grub-vine-events.netlify.app", state: "deploy current", ok: true },
+        { svc: "Supabase", name: "grub and vineai", sub: "Postgres 17 · ap-southeast-1", state: "INACTIVE", ok: false },
+        { svc: "Canva", name: "Presentation — Vine AI", sub: "13 pages · edited Apr 15", state: "2 versions", ok: true }
+      ],
+      actions: [
+        { label: "Visit live site", url: "http://grub-vine-events.netlify.app" },
+        { label: "Netlify admin", url: "https://app.netlify.com/projects/grub-vine-events" },
+        { label: "Supabase project", url: "https://supabase.com/dashboard/project/jhfhbbznkqermzoejrgv" },
+        { label: "Vine AI deck", url: "https://www.canva.com/d/7K05zuZQ_lgV4nQ" }
+      ],
+      meta: "decks 2026-04-15 · db created 2026-05-07"
+    },
+    "winter-wednesdays": {
+      name: "Winter Wednesdays — Blue Room",
+      status: ["live", "Live"],
+      summary: "A standalone Netlify site with a current deploy. No database, repo, or design assets are linked to it — likely a one-off event page.",
+      resources: [
+        { svc: "Netlify", name: "winter-wednesdays-blueroom", sub: "winter-wednesdays-blueroom.netlify.app", state: "deploy current", ok: true }
+      ],
+      actions: [
+        { label: "Visit live site", url: "http://winter-wednesdays-blueroom.netlify.app" },
+        { label: "Netlify admin", url: "https://app.netlify.com/projects/winter-wednesdays-blueroom" }
+      ],
+      meta: "start date not exposed by Netlify"
+    },
+    "scaledesk": {
+      name: "ScaleDesk",
+      status: ["paused", "Paused"],
+      summary: "Your earliest recorded project (April 7). Its Supabase database has gone inactive — Supabase pauses free-tier databases after inactivity. Restoring it from the Supabase dashboard brings the data back.",
+      resources: [
+        { svc: "Supabase", name: "ScaleDesk", sub: "Postgres 17 · eu-west-1", state: "INACTIVE", ok: false }
+      ],
+      actions: [
+        { label: "Restore in Supabase", url: "https://supabase.com/dashboard/project/hhrsufnkxcnsqjrvhgud" }
+      ],
+      meta: "created 2026-04-07"
+    },
+    "coach-q": {
+      name: "Coach Q — Nico",
+      status: ["paused", "Paused"],
+      summary: "A Supabase-only project from late April, now inactive. No site, repo, or designs are linked to it.",
+      resources: [
+        { svc: "Supabase", name: "Coach Q- Nico", sub: "Postgres 17 · ap-southeast-1", state: "INACTIVE", ok: false }
+      ],
+      actions: [
+        { label: "Restore in Supabase", url: "https://supabase.com/dashboard/project/ehymgsdauhjkbmgnnnny" }
+      ],
+      meta: "created 2026-04-29"
+    },
+    "tsc-brand": {
+      name: "TSC brand & social",
+      status: ["paused", "Dormant"],
+      summary: "A Canva marketing sprint for The Scaling Company itself: a story design plus two automation-themed Facebook posts. All three were last edited April 23.",
+      resources: [
+        { svc: "Canva", name: "Your Story — The Scaling Company", sub: "1 page", state: "Apr 23", ok: true },
+        { svc: "Canva", name: "FB: Save Time with Automation", sub: "1 page", state: "Apr 23", ok: true },
+        { svc: "Canva", name: "FB: Still doing it manually?", sub: "1 page", state: "Apr 23", ok: true }
+      ],
+      actions: [
+        { label: "Your Story", url: "https://www.canva.com/d/7_GwRkF9yQv8-Zg" },
+        { label: "FB: Save Time", url: "https://www.canva.com/d/51oyjtSRA00v36C" },
+        { label: "FB: Manually?", url: "https://www.canva.com/d/mnX9Lc4gMyG8tTF" }
+      ],
+      meta: "last edit 2026-04-23"
+    }
+  };
+
+  const overlay = document.getElementById("overlay");
+  const modalTitle = document.getElementById("modal-title");
+  const modalBody = document.getElementById("modal-body");
+  const closeBtn = document.getElementById("modal-close");
+  let lastFocus = null;
+
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  }
+
+  function openProject(id, trigger) {
+    const p = PROJECTS[id];
+    if (!p) return;
+    lastFocus = trigger || null;
+    modalTitle.innerHTML = esc(p.name) +
+      ' <span class="pill ' + p.status[0] + '" style="vertical-align:3px;margin-left:8px">' + esc(p.status[1]) + "</span>";
+    modalBody.innerHTML =
+      '<p class="summary">' + esc(p.summary) + "</p>" +
+      '<div><p class="modal-sub">Resources</p><ul class="res-list">' +
+      p.resources.map(r =>
+        "<li><span class=\"svc-name\">" + esc(r.svc) + "</span>" +
+        '<span class="res-k">' + esc(r.name) + (r.sub ? '<span class="sub">' + esc(r.sub) + "</span>" : "") + "</span>" +
+        '<span class="res-state ' + (r.ok ? "ok" : "warn") + '">' + esc(r.state) + "</span></li>"
+      ).join("") +
+      "</ul></div>" +
+      '<div><p class="modal-sub">Open</p><div class="actions">' +
+      p.actions.map(a => '<a class="action" href="' + esc(a.url) + '">' + esc(a.label) + " ↗</a>").join("") +
+      "</div></div>" +
+      '<p class="modal-meta">' + esc(p.meta) + "</p>";
+    overlay.classList.add("on");
+    closeBtn.focus();
+  }
+
+  function closeModal() {
+    overlay.classList.remove("on");
+    if (lastFocus) lastFocus.focus();
+  }
+
+  document.querySelectorAll("[data-project]").forEach(el => {
+    el.addEventListener("click", () => openProject(el.dataset.project, el));
+  });
+  closeBtn.addEventListener("click", closeModal);
+  overlay.addEventListener("click", e => { if (e.target === overlay) closeModal(); });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && overlay.classList.contains("on")) closeModal();
+  });
+</script>
