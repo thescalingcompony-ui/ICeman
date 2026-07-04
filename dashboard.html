@@ -1,0 +1,389 @@
+<title>Project Control — The Scaling Company</title>
+<style>
+  :root {
+    --page: #eef3f7;
+    --surface: #ffffff;
+    --surface-2: #f4f8fb;
+    --ink: #16232e;
+    --ink-2: #4d6072;
+    --muted: #7d8fa0;
+    --hairline: #d9e3ea;
+    --grid: #e4ebf1;
+    --accent: #1173c4;
+    --accent-soft: #e3f0fa;
+    --good: #0ca30c;
+    --good-soft: #e2f5e2;
+    --good-ink: #0a7d0a;
+    --live: #2a78d6;
+    --live-soft: #e3edfa;
+    --live-ink: #1c5cab;
+    --pending: #fab219;
+    --pending-soft: #fdf3d9;
+    --pending-ink: #8a5f00;
+    --paused: #64748b;
+    --paused-soft: #e9edf2;
+    --paused-ink: #4a5568;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --page: #0b1219;
+      --surface: #14202b;
+      --surface-2: #1a2835;
+      --ink: #eaf2f8;
+      --ink-2: #a8bac9;
+      --muted: #718496;
+      --hairline: #24343f;
+      --grid: #1f2e3a;
+      --accent: #4aa3e8;
+      --accent-soft: #163349;
+      --good: #0ca30c;
+      --good-soft: #12331a;
+      --good-ink: #5fd66a;
+      --live: #3987e5;
+      --live-soft: #182f4d;
+      --live-ink: #82b6f0;
+      --pending: #fab219;
+      --pending-soft: #3a2f10;
+      --pending-ink: #f0c96a;
+      --paused: #7d8b99;
+      --paused-soft: #222e39;
+      --paused-ink: #a3b2c0;
+    }
+  }
+  :root[data-theme="dark"] {
+    --page: #0b1219; --surface: #14202b; --surface-2: #1a2835;
+    --ink: #eaf2f8; --ink-2: #a8bac9; --muted: #718496;
+    --hairline: #24343f; --grid: #1f2e3a;
+    --accent: #4aa3e8; --accent-soft: #163349;
+    --good: #0ca30c; --good-soft: #12331a; --good-ink: #5fd66a;
+    --live: #3987e5; --live-soft: #182f4d; --live-ink: #82b6f0;
+    --pending: #fab219; --pending-soft: #3a2f10; --pending-ink: #f0c96a;
+    --paused: #7d8b99; --paused-soft: #222e39; --paused-ink: #a3b2c0;
+  }
+  :root[data-theme="light"] {
+    --page: #eef3f7; --surface: #ffffff; --surface-2: #f4f8fb;
+    --ink: #16232e; --ink-2: #4d6072; --muted: #7d8fa0;
+    --hairline: #d9e3ea; --grid: #e4ebf1;
+    --accent: #1173c4; --accent-soft: #e3f0fa;
+    --good: #0ca30c; --good-soft: #e2f5e2; --good-ink: #0a7d0a;
+    --live: #2a78d6; --live-soft: #e3edfa; --live-ink: #1c5cab;
+    --pending: #fab219; --pending-soft: #fdf3d9; --pending-ink: #8a5f00;
+    --paused: #64748b; --paused-soft: #e9edf2; --paused-ink: #4a5568;
+  }
+
+  body {
+    background: var(--page);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.5;
+    margin: 0;
+    padding: 32px 20px 64px;
+  }
+  .wrap { max-width: 1060px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover, a:focus-visible { text-decoration: underline; }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+  /* ---------- header ---------- */
+  header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; }
+  .eyebrow { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin: 0 0 6px; }
+  h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin: 0; text-wrap: balance; }
+  .sync { text-align: right; font-size: 12px; color: var(--ink-2); }
+  .sync .stamp { font-family: var(--mono); color: var(--ink); font-size: 13px; display: block; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; color: var(--ink-2);
+    background: var(--surface); border: 1px solid var(--hairline);
+    border-radius: 999px; padding: 4px 12px;
+  }
+  .chip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--good); }
+  .chip.off .dot { background: var(--paused); }
+  .chip.off { color: var(--muted); }
+
+  /* ---------- stat tiles ---------- */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .tile {
+    background: var(--surface); border: 1px solid var(--hairline); border-radius: 10px;
+    padding: 16px 18px; display: flex; flex-direction: column; gap: 2px;
+  }
+  .tile .label { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .tile .value { font-size: 30px; font-weight: 700; letter-spacing: -0.02em; }
+  .tile .note { font-size: 12px; color: var(--ink-2); }
+
+  /* ---------- sections ---------- */
+  h2 { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin: 0 0 12px; }
+  section > .panel, .card { background: var(--surface); border: 1px solid var(--hairline); border-radius: 10px; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+  .card { padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; }
+  .card .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .card h3 { font-size: 15px; font-weight: 650; margin: 0; }
+  .card .detail { font-size: 13px; color: var(--ink-2); margin: 0; }
+  .card .meta { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+  .card .links { font-size: 12.5px; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+  .srcs { display: flex; flex-wrap: wrap; gap: 6px; }
+  .src { font-size: 11px; color: var(--ink-2); background: var(--surface-2); border: 1px solid var(--hairline); border-radius: 4px; padding: 1px 7px; }
+
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px; flex: none;
+    font-size: 11.5px; font-weight: 600; letter-spacing: .02em;
+    border-radius: 999px; padding: 3px 10px;
+  }
+  .pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .pill.active  { background: var(--good-soft);    color: var(--good-ink); }
+  .pill.live    { background: var(--live-soft);    color: var(--live-ink); }
+  .pill.pending { background: var(--pending-soft); color: var(--pending-ink); }
+  .pill.paused  { background: var(--paused-soft);  color: var(--paused-ink); }
+
+  /* ---------- timeline ---------- */
+  .timeline { padding: 18px 20px 14px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--ink-2); margin-bottom: 14px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+  .tl-grid { position: relative; }
+  .tl-months { position: absolute; inset: 0; pointer-events: none; }
+  .tl-months .m { position: absolute; top: 0; bottom: 0; border-left: 1px solid var(--grid); }
+  .tl-months .m span { position: absolute; top: -2px; left: 6px; font-size: 11px; color: var(--muted); font-family: var(--mono); }
+  .tl-today { position: absolute; top: 0; bottom: 0; border-left: 2px solid var(--accent); opacity: .65; }
+  .tl-today span { position: absolute; bottom: -4px; left: 5px; font-size: 10px; color: var(--accent); font-family: var(--mono); }
+  .tl-rows { position: relative; padding: 26px 0 22px; display: flex; flex-direction: column; gap: 14px; }
+  .tl-row { display: grid; grid-template-columns: 130px 1fr; align-items: center; gap: 10px; }
+  .tl-row .name { font-size: 12.5px; color: var(--ink-2); text-align: right; padding-right: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tl-track { position: relative; height: 14px; }
+  .tl-bar {
+    position: absolute; top: 2px; height: 10px; border-radius: 4px;
+    min-width: 10px; cursor: default;
+  }
+  .tl-bar:hover, .tl-bar:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+  .tl-bar .tip {
+    display: none; position: absolute; bottom: 18px; left: 0; z-index: 2;
+    background: var(--ink); color: var(--page); font-size: 11.5px;
+    padding: 5px 9px; border-radius: 6px; white-space: nowrap;
+  }
+  .tl-bar:hover .tip, .tl-bar:focus-visible .tip { display: block; }
+  .tl-note { font-size: 12px; color: var(--muted); margin: 10px 0 0; }
+
+  /* ---------- service tables ---------- */
+  .services { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+  .svc { background: var(--surface); border: 1px solid var(--hairline); border-radius: 10px; padding: 14px 18px 16px; }
+  .svc h3 { font-size: 13px; font-weight: 650; margin: 0 0 10px; display: flex; justify-content: space-between; align-items: baseline; }
+  .svc h3 .count { font-size: 11px; color: var(--muted); font-family: var(--mono); font-weight: 400; }
+  .svc ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  .svc li { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 6px 0; border-top: 1px solid var(--hairline); font-size: 13px; }
+  .svc li:first-child { border-top: 0; }
+  .svc li .k { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .svc li .v { flex: none; font-size: 11.5px; color: var(--muted); font-family: var(--mono); }
+  .svc .empty { font-size: 13px; color: var(--muted); padding: 4px 0; }
+
+  footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--hairline); padding-top: 14px; }
+  footer p { margin: 4px 0; }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <p class="eyebrow">The Scaling Company</p>
+      <h1>Project Control</h1>
+    </div>
+    <div class="sync">
+      <span class="stamp">Data synced 2026-07-04 00:07 UTC</span>
+      Auto-refreshes daily at 07:00 UTC
+    </div>
+  </header>
+
+  <div class="chips" aria-label="Connected services">
+    <span class="chip"><span class="dot"></span>GitHub</span>
+    <span class="chip"><span class="dot"></span>Supabase</span>
+    <span class="chip"><span class="dot"></span>Netlify</span>
+    <span class="chip"><span class="dot"></span>Canva</span>
+    <span class="chip"><span class="dot"></span>Google Calendar</span>
+    <span class="chip off"><span class="dot"></span>Google Drive — connector unavailable this sync</span>
+  </div>
+
+  <div class="stats">
+    <div class="tile">
+      <span class="label">Projects tracked</span>
+      <span class="value">7</span>
+      <span class="note">across 4 services</span>
+    </div>
+    <div class="tile">
+      <span class="label">Live sites</span>
+      <span class="value">2</span>
+      <span class="note">both deploys current on Netlify</span>
+    </div>
+    <div class="tile">
+      <span class="label">Active databases</span>
+      <span class="value">1<span style="font-size:16px;color:var(--muted);font-weight:400"> / 4</span></span>
+      <span class="note">3 Supabase projects paused</span>
+    </div>
+    <div class="tile">
+      <span class="label">Events next 14 days</span>
+      <span class="value">0</span>
+      <span class="note">calendar is clear through Jul 17</span>
+    </div>
+  </div>
+
+  <section>
+    <h2>Current</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="top"><h3>style-list</h3><span class="pill active">Active</span></div>
+        <p class="detail">Newest build — Supabase database is up and healthy (eu-west-1). No site deployed yet.</p>
+        <div class="srcs"><span class="src">Supabase</span></div>
+        <span class="meta">started 2026-07-01</span>
+      </div>
+      <div class="card">
+        <div class="top"><h3>ICeman</h3><span class="pill pending">Pending</span></div>
+        <p class="detail">GitHub repo created but still empty — no commits, issues, or pull requests yet. This dashboard is its first artifact.</p>
+        <div class="srcs"><span class="src">GitHub</span></div>
+        <span class="meta">repo: thescalingcompony-ui/iceman</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Shipped &amp; live</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="top"><h3>Grub &amp; Vine Events</h3><span class="pill live">Live</span></div>
+        <p class="detail">Site is live and the deploy is current. The companion Supabase database (“grub and vineai”) is paused; two 13-page Vine AI pitch decks live in Canva.</p>
+        <div class="srcs"><span class="src">Netlify</span><span class="src">Supabase</span><span class="src">Canva</span></div>
+        <div class="links">
+          <a href="http://grub-vine-events.netlify.app">grub-vine-events.netlify.app</a>
+          <a href="https://www.canva.com/d/7K05zuZQ_lgV4nQ">Vine AI deck</a>
+        </div>
+        <span class="meta">db created 2026-05-07 · decks 2026-04-15</span>
+      </div>
+      <div class="card">
+        <div class="top"><h3>Winter Wednesdays — Blue Room</h3><span class="pill live">Live</span></div>
+        <p class="detail">Site is live with a current deploy. Netlify-only project; no database attached.</p>
+        <div class="srcs"><span class="src">Netlify</span></div>
+        <div class="links"><a href="http://winter-wednesdays-blueroom.netlify.app">winter-wednesdays-blueroom.netlify.app</a></div>
+        <span class="meta">start date not exposed by Netlify</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Past &amp; paused</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="top"><h3>ScaleDesk</h3><span class="pill paused">Paused</span></div>
+        <p class="detail">Earliest project on record. Supabase database (eu-west-1) is inactive — restore it from the Supabase dashboard to resume.</p>
+        <div class="srcs"><span class="src">Supabase</span></div>
+        <span class="meta">started 2026-04-07</span>
+      </div>
+      <div class="card">
+        <div class="top"><h3>Coach Q — Nico</h3><span class="pill paused">Paused</span></div>
+        <p class="detail">Supabase database (ap-southeast-1) is inactive. No site or design assets linked.</p>
+        <div class="srcs"><span class="src">Supabase</span></div>
+        <span class="meta">started 2026-04-29</span>
+      </div>
+      <div class="card">
+        <div class="top"><h3>TSC brand &amp; social</h3><span class="pill paused">Dormant</span></div>
+        <p class="detail">Marketing sprint in Canva: “Your Story” plus two automation-themed Facebook posts. Last touched late April.</p>
+        <div class="srcs"><span class="src">Canva</span></div>
+        <div class="links"><a href="https://www.canva.com/d/7_GwRkF9yQv8-Zg">Your Story</a><a href="https://www.canva.com/d/51oyjtSRA00v36C">FB: Save Time</a><a href="https://www.canva.com/d/mnX9Lc4gMyG8tTF">FB: Manually?</a></div>
+        <span class="meta">last edit 2026-04-23</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Timeline · April – July 2026</h2>
+    <div class="panel timeline">
+      <div class="legend" aria-hidden="true">
+        <span><i style="background:var(--good)"></i>Active</span>
+        <span><i style="background:var(--live)"></i>Live</span>
+        <span><i style="background:var(--pending)"></i>Pending</span>
+        <span><i style="background:var(--paused)"></i>Paused</span>
+      </div>
+      <div class="tl-grid">
+        <div class="tl-months">
+          <div class="m" style="left:0%"><span>Apr</span></div>
+          <div class="m" style="left:30%"><span>May</span></div>
+          <div class="m" style="left:61%"><span>Jun</span></div>
+          <div class="m" style="left:91%"><span>Jul</span></div>
+          <div class="tl-today" style="left:94%"><span>today</span></div>
+        </div>
+        <div class="tl-rows">
+          <div class="tl-row">
+            <span class="name">ScaleDesk</span>
+            <div class="tl-track"><span class="tl-bar" tabindex="0" style="left:6%;width:88%;background:var(--paused)"><span class="tip">ScaleDesk · Apr 7 → now · paused</span></span></div>
+          </div>
+          <div class="tl-row">
+            <span class="name">Coach Q — Nico</span>
+            <div class="tl-track"><span class="tl-bar" tabindex="0" style="left:28%;width:66%;background:var(--paused)"><span class="tip">Coach Q · Apr 29 → now · paused</span></span></div>
+          </div>
+          <div class="tl-row">
+            <span class="name">Grub &amp; Vine</span>
+            <div class="tl-track"><span class="tl-bar" tabindex="0" style="left:36%;width:58%;background:var(--live)"><span class="tip">Grub &amp; Vine · May 7 → now · live</span></span></div>
+          </div>
+          <div class="tl-row">
+            <span class="name">style-list</span>
+            <div class="tl-track"><span class="tl-bar" tabindex="0" style="left:91%;width:3%;background:var(--good)"><span class="tip">style-list · Jul 1 → now · active</span></span></div>
+          </div>
+          <div class="tl-row">
+            <span class="name">ICeman</span>
+            <div class="tl-track"><span class="tl-bar" tabindex="0" style="left:92%;width:2%;background:var(--pending)"><span class="tip">ICeman · Jul 2 → now · pending</span></span></div>
+          </div>
+        </div>
+      </div>
+      <p class="tl-note">Bars run from each project’s first recorded activity to today; color is its current status. Winter Wednesdays is omitted — Netlify doesn’t expose its start date.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Service inventory</h2>
+    <div class="services">
+      <div class="svc">
+        <h3>Supabase <span class="count">4 projects</span></h3>
+        <ul>
+          <li><span class="k">style-list</span><span class="v">healthy · eu-west-1</span></li>
+          <li><span class="k">grub and vineai</span><span class="v">inactive · ap-se-1</span></li>
+          <li><span class="k">ScaleDesk</span><span class="v">inactive · eu-west-1</span></li>
+          <li><span class="k">Coach Q — Nico</span><span class="v">inactive · ap-se-1</span></li>
+        </ul>
+      </div>
+      <div class="svc">
+        <h3>Netlify <span class="count">2 sites</span></h3>
+        <ul>
+          <li><span class="k"><a href="http://grub-vine-events.netlify.app">grub-vine-events</a></span><span class="v">deploy current</span></li>
+          <li><span class="k"><a href="http://winter-wednesdays-blueroom.netlify.app">winter-wednesdays-blueroom</a></span><span class="v">deploy current</span></li>
+        </ul>
+      </div>
+      <div class="svc">
+        <h3>Canva <span class="count">5 recent designs</span></h3>
+        <ul>
+          <li><span class="k"><a href="https://www.canva.com/d/7_GwRkF9yQv8-Zg">Your Story — TSC</a></span><span class="v">Apr 23</span></li>
+          <li><span class="k"><a href="https://www.canva.com/d/51oyjtSRA00v36C">FB: Save Time with Automation</a></span><span class="v">Apr 23</span></li>
+          <li><span class="k"><a href="https://www.canva.com/d/mnX9Lc4gMyG8tTF">FB: Still doing it manually?</a></span><span class="v">Apr 23</span></li>
+          <li><span class="k"><a href="https://www.canva.com/d/7K05zuZQ_lgV4nQ">Presentation — Vine AI</a></span><span class="v">Apr 15 · 13pp</span></li>
+          <li><span class="k"><a href="https://www.canva.com/d/gWJIRne7bCI6lRY">Presentation — Vine AI (v1)</a></span><span class="v">Apr 15 · 13pp</span></li>
+        </ul>
+      </div>
+      <div class="svc">
+        <h3>GitHub <span class="count">1 repo</span></h3>
+        <ul>
+          <li><span class="k">thescalingcompony-ui/iceman</span><span class="v">empty · 0 PRs</span></li>
+        </ul>
+      </div>
+      <div class="svc">
+        <h3>Google Calendar</h3>
+        <p class="empty">No events scheduled Jul 3 – Jul 17.</p>
+      </div>
+      <div class="svc">
+        <h3>Google Drive</h3>
+        <p class="empty">Connector didn’t respond during this sync — files will appear on the next refresh once the connection is healthy.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>Sources: GitHub · Supabase · Netlify · Canva · Google Calendar. Refreshed automatically every day at 07:00 UTC; ask Claude to change the cadence or add Gmail / Drive.</p>
+  </footer>
+</div>
