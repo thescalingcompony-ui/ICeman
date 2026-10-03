@@ -337,3 +337,4 @@ figcaption { font-size: .85rem; color: var(--text-2); padding: 10px 2px 0; }
 .review-placeholder blockquote p { color: #fff; margin: 0; }
 .feature .card-icon { flex: none; }
 @media (max-width: 479px) { .trust ul { grid-template-columns: 1fr; gap: 14px; } }
+.hero-media img { object-position: 60% 35%; }

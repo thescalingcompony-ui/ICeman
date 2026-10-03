@@ -96,7 +96,7 @@ const schema = {
     "Cape Town transport company offering scholar transport, charters, corporate and staff transport, airport transfers, event transport, tours and shuttles across the Western Cape.",
   url: `${biz.url}/`,
   logo: `${biz.url}/assets/img/logo.jpg`,
-  image: [`${biz.url}/assets/img/fleet-three-1280.jpg`, `${biz.url}/assets/img/og-image.jpg`],
+  image: [`${biz.url}/assets/img/fleet-hero-1170.jpg`, `${biz.url}/assets/img/og-image.jpg`],
   email: biz.email,
   telephone: biz.phones[0].e164,
   address: {
