@@ -1,0 +1,120 @@
+<!--page {
+  "title": "Contact & Request a Quote",
+  "description": "Request a transport quote from Sibaca Journeys in Cape Town. Call 073 669 0770 or 065 711 5770, WhatsApp 078 324 2012, or email info@sibacajourneys.co.za."
+} -->
+<section class="page-hero">
+  <div class="wrap">
+    <span class="eyebrow">Contact us</span>
+    <h1>Request a quote</h1>
+    <p>Fill in the form and send it to us on WhatsApp or by email — or just call. We'll come back to you with a tailored quote.</p>
+  </div>
+</section>
+
+<section class="section section-cream" id="quote">
+  <div class="wrap contact-grid">
+    <div class="form-card">
+      <h2 style="font-size:1.5rem">Trip details</h2>
+      <p class="form-help" style="margin:0 0 20px">Fields marked <span class="req" style="color:#b4231a">*</span> are required.</p>
+      <!-- No backend: site.js turns the answers into a WhatsApp message or an email. Without JavaScript the browser's mailto fallback is used. -->
+      <form id="quote-form" action="mailto:{{email}}?subject=Quote%20request" method="post" enctype="text/plain" novalidate>
+        <div class="form-grid">
+          <div class="field">
+            <label for="f-name">Name <span class="req">*</span></label>
+            <input id="f-name" name="name" type="text" autocomplete="name" required>
+            <span class="err">Please enter your name.</span>
+          </div>
+          <div class="field">
+            <label for="f-company">Company / organisation</label>
+            <input id="f-company" name="company" type="text" autocomplete="organization">
+          </div>
+          <div class="field">
+            <label for="f-phone">Phone / WhatsApp <span class="req">*</span></label>
+            <input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required pattern="[0-9+()\s\-]{9,}">
+            <span class="err">Please enter a phone number we can reach you on.</span>
+          </div>
+          <div class="field">
+            <label for="f-email">Email</label>
+            <input id="f-email" name="email" type="email" autocomplete="email">
+            <span class="err">Please check your email address.</span>
+          </div>
+          <div class="field">
+            <label for="f-type">Journey type <span class="req">*</span></label>
+            <select id="f-type" name="journey_type" required>
+              <option value="">Choose one…</option>
+              <option value="scholar">Scholar / school transport</option>
+              <option value="airport">Airport transfer</option>
+              <option value="corporate">Corporate / staff transport</option>
+              <option value="event">Event or function</option>
+              <option value="tour">Tour / day trip</option>
+              <option value="shuttle">Shuttle service</option>
+              <option value="private">Private group / charter</option>
+              <option value="long-distance">Long-distance travel</option>
+              <option value="other">Other</option>
+            </select>
+            <span class="err">Please choose a journey type.</span>
+          </div>
+          <div class="field">
+            <label for="f-passengers">Number of passengers <span class="req">*</span></label>
+            <input id="f-passengers" name="passengers" type="number" min="1" max="500" inputmode="numeric" required>
+            <span class="err">Please enter how many people are travelling.</span>
+          </div>
+          <div class="field">
+            <label for="f-pickup">Pickup location <span class="req">*</span></label>
+            <input id="f-pickup" name="pickup" type="text" required placeholder="e.g. Langa, Cape Town International">
+            <span class="err">Please enter a pickup location.</span>
+          </div>
+          <div class="field">
+            <label for="f-destination">Destination <span class="req">*</span></label>
+            <input id="f-destination" name="destination" type="text" required placeholder="e.g. Stellenbosch">
+            <span class="err">Please enter a destination.</span>
+          </div>
+          <div class="field">
+            <label for="f-date">Travel date <span class="req">*</span></label>
+            <input id="f-date" name="travel_date" type="date" required>
+            <span class="err">Please choose a travel date.</span>
+          </div>
+          <div class="field">
+            <label for="f-time">Pickup time</label>
+            <input id="f-time" name="pickup_time" type="time">
+          </div>
+          <div class="field full">
+            <label for="f-vehicle">Vehicle required</label>
+            <select id="f-vehicle" name="vehicle">
+              <option value="">Not sure — please recommend</option>
+              <option value="sprinter">22-seater Sprinter bus</option>
+              <option value="multiple-sprinters">More than one Sprinter</option>
+              <option value="sedan">Sedan (on request)</option>
+              <option value="suv">SUV (on request)</option>
+              <option value="large-bus">Large bus / coach, 50–60 seats (on request)</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label for="f-notes">Additional requirements</label>
+            <textarea id="f-notes" name="notes" placeholder="Return trip? Luggage, stops along the way, recurring dates, accessibility needs…"></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-wa" type="submit" name="send_via" value="whatsapp">{{icon:whatsapp}} Send via WhatsApp</button>
+          <button class="btn btn-dark" type="submit" name="send_via" value="email">{{icon:mail}} Send via email</button>
+        </div>
+        <p class="form-help">Your request opens in WhatsApp or your email app, ready to send. We don't store your details on this website.</p>
+        <div id="form-status" class="form-status" role="status" aria-live="polite"></div>
+      </form>
+    </div>
+
+    <aside class="contact-card" aria-labelledby="contact-heading">
+      <h2 id="contact-heading">Prefer to chat?</h2>
+      <div class="wa-panel">
+        <p>Message us on WhatsApp — it's often the quickest way to get a quote.</p>
+        <a class="btn btn-wa" href="{{wa:Hi Sibaca Journeys, I'd like a quote for transport.}}" rel="noopener">{{icon:whatsapp}} WhatsApp {{whatsapp}}</a>
+      </div>
+      <ul class="contact-list">
+        <li><a href="tel:{{phone1tel}}">{{icon:phone}}<span><small>Call</small>{{phone1}}</span></a></li>
+        <li><a href="tel:{{phone2tel}}">{{icon:phone}}<span><small>Call</small>{{phone2}}</span></a></li>
+        <li><a href="mailto:{{email}}">{{icon:mail}}<span><small>Email</small>{{email}}</span></a></li>
+        <li><span class="item">{{icon:pin}}<span><small>Based in</small>Cape Town, Western Cape</span></span></li>
+      </ul>
+      <p style="margin:0;font-size:.9rem">We don't publish prices — every trip is quoted to suit your route, dates and group size.</p>
+    </aside>
+  </div>
+</section>
